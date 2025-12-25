@@ -29,6 +29,106 @@
 		font-weight: bold;
 		padding: 0 10px
 	}
+	/* --- 新增样式开始 --- */
+    /* --- 1. 容器样式 --- */
+    .message-box {
+        position: absolute;
+        top: 52%; /* 稍微往上提一点 */
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        text-align: center;
+        pointer-events: none; /* 防止文字框遮挡住背景的点击 */
+    }
+    
+    /* 必须加 pointer-events: auto 才能让里面的按钮被点击 */
+    .message-box .btn-surprise, 
+    .message-box .text-blessing {
+        pointer-events: auto;
+    }
+
+    /* --- 2. 祝福语框样式 --- */
+    .text-blessing {
+        position: relative;
+        color: #fff;
+        font-size: 16px;
+        line-height: 1.8;
+        font-weight: 500;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        padding: 15px 20px;
+        background: rgba(0, 0, 0, 0.25);
+        border-radius: 8px;
+        display: inline-block;
+        margin-bottom: 15px;
+        max-width: 90%;
+        box-sizing: border-box;
+    }
+
+    /* --- 3. 每一行文字默认隐藏 --- */
+    .text-blessing p {
+        margin: 5px 0;
+        opacity: 0;             /* 关键：一开始完全看不见 */
+        transform: translateY(15px);
+        transition: all 0.5s;   /* 备用 */
+    }
+    
+    /* --- 4. 只有当父级加上 start-anim 类后，才执行动画 --- */
+    .message-box.start-anim .text-blessing p {
+        animation: textFadeUp 1s forwards;
+    }
+
+    /* 动画定义 */
+    @keyframes textFadeUp {
+        from { opacity: 0; transform: translateY(15px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- 5. 设置出场时间差（节奏感） --- */
+    /* 第一句：立即出现 */
+    .message-box.start-anim .delay-1 { animation-delay: 0.5s; }
+    /* 第二句：过2秒出现 */
+    .message-box.start-anim .delay-2 { animation-delay: 2.5s; }
+    /* 第三句：过4.5秒出现 */
+    .message-box.start-anim .delay-3 { animation-delay: 4.5s; }
+    /* 第四句：过6.5秒出现 */
+    .message-box.start-anim .delay-4 { animation-delay: 6.5s; }
+
+    /* --- 6. 按钮和惊喜样式 --- */
+    .btn-surprise {
+        display: inline-block;
+        opacity: 0; /* 按钮一开始也隐藏 */
+        padding: 8px 20px;
+        background-color: #ff4081;
+        color: white;
+        border-radius: 20px;
+        font-size: 14px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        cursor: pointer;
+        border: 2px solid #fff;
+    }
+    /* 按钮在所有文字说完后才出来 (8秒后) */
+    .message-box.start-anim .btn-surprise {
+        animation: bounceIn 1s 8s forwards; /* 使用 animate.css 的 bounceIn 或自定义 */
+        /* 如果 bounceIn 没效果，用下面这个备用动画: */
+        animation-name: simpleFadeIn;
+        animation-duration: 1s;
+        animation-delay: 8s;
+        animation-fill-mode: forwards;
+    }
+    
+    @keyframes simpleFadeIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .text-surprise {
+        display: none; 
+        margin-top: 15px;
+        font-size: 20px;
+        font-weight: bold;
+        color: #ffd700; 
+        text-shadow: 0 2px 4px rgba(255, 0, 0, 0.5);
+    }
 	</style>
 </head>
 
@@ -71,10 +171,28 @@
 			<i class="img-stars opacity0 animated j-stars"></i>
 			<i class="content-bg opacity0 animated j-bottomBg"></i>
 			
-			<!-- <p style="text-align: center;position:relative;top: 50%;color: white">小柠，圣诞快乐！嘻嘻~</p> -->
-			<!-- 你是不是正等待着圣诞老人钻烟囱给你送圣诞节礼物啊?别再傻等了，今年他不会来了，因为去年他被你的袜子熏昏了,哈哈哈。小柠，圣诞快乐! -->
+			<div class="message-box" id="msg-box">
+                <div class="text-blessing">
+                    <p class="delay-1">你是不是正等待着圣诞老人钻烟囱给你送礼物啊?</p>
+                    <p class="delay-2">别傻等了，今年他不会来了，</p>
+                    <p class="delay-3">因为去年他被你的袜子熏昏了，哈哈哈。</p>
+                    <p class="delay-4">
+                        <span style="font-size: 1.2em; font-weight:bold;">小洁，圣诞快乐!</span>
+                    </p>
+                </div>
 
-<!-- 			<p class="protagonist j-gift1 opacity0 animated">&emsp;小柠，圣诞快乐！嘻嘻~ &emsp;</p> -->
+                <br>
+                <div id="btn-trigger" class="btn-surprise">
+                    🎅 圣诞老人不来了怎么办？
+                </div>
+
+                <div id="surprise-text" class="text-surprise">
+                    😡 圣诞老人不来，所以我来了 ✊
+                </div>
+            </div>
+
+            </div>
+			
 			<!-- <a class="lottery" href="lottery.html">戳我抽奖</a> -->
 		</section>
 		<!-- end content -->
@@ -85,6 +203,37 @@
 	<script>
 		ISPRO = true;
 	</script>
+	<script>
+        // 确保页面加载完再绑定事件
+        window.addEventListener('load', function() {
+            var playBtn = document.getElementById('j-playBgMusic'); // 获取“进入”按钮
+            var msgBox = document.getElementById('msg-box');        // 获取文字框
+            var btnTrigger = document.getElementById('btn-trigger'); // 获取惊喜按钮
+            var surpriseText = document.getElementById('surprise-text'); // 获取惊喜文字
+
+            // 1. 监听【进入】按钮点击
+            if (playBtn) {
+                playBtn.addEventListener('click', function() {
+                    // 延迟 500 毫秒，等页面切换进去后再开始播放文字动画
+                    setTimeout(function() {
+                        msgBox.classList.add('start-anim');
+                    }, 500);
+                });
+            }
+
+            // 2. 监听【惊喜】按钮点击
+            if (btnTrigger) {
+                btnTrigger.addEventListener('click', function() {
+                    surpriseText.style.display = 'block';
+                    //以此添加一个弹跳动画
+                    surpriseText.classList.add('animated', 'bounceIn'); 
+                    // 隐藏按钮自己
+                    btnTrigger.style.display = 'none';
+                });
+            }
+        });
+    </script>
+
 </body>
 
 </html>
